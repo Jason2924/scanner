@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: DockerFile
+    image: backend
+    container_name: backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    env_file:
+      - ./backend/.env.local
+
+  database:
+    image: mysql:8.3.0
+    restart: always
+    container_name: database
+    volumes:
+      - data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./backend/.env.local
+
+  adminer:
+    image: adminer:5.1.0
+    container_name: adminer
+    ports:
+      - '8000:8080'
+    depends_on:
+      - database
+    environment:
+      - ADMINER_DEFAULT_SERVER=database
+
+volumes:
+  data:
