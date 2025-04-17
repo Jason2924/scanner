@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	cnf "github.com/Jason2924/scanner/backend/config"
+	"github.com/Jason2924/scanner/backend/config"
 	ntt "github.com/Jason2924/scanner/backend/entities"
 
 	"gorm.io/driver/mysql"
@@ -22,7 +22,7 @@ var (
 type IMysqlDatabase interface {
 	Connect() *gorm.DB
 	Close() error
-	Ping(context.Context) error
+	Ping(ctxt context.Context) error
 }
 
 type connection struct {
@@ -33,28 +33,27 @@ type connection struct {
 
 type mysqlDatabase struct {
 	host         string
+	rootPassword string
 	name         string
 	username     string
 	password     string
-	port         string
 	migrateTable bool
-	// importFile   bool
-	connection *connection
+	connection   *connection
 }
 
-func NewMysqlDatabase(msql *cnf.ConfigMysql) IMysqlDatabase {
+func NewMysqlDatabase(options *config.ConfigMysql) IMysqlDatabase {
 	pool := &connection{
 		idle:     10,
 		maximum:  20,
 		lifetime: 1 * time.Hour,
 	}
 	return &mysqlDatabase{
-		host:         msql.Host,
-		name:         msql.Name,
-		username:     msql.Username,
-		password:     msql.Password,
-		port:         "3306",
-		migrateTable: msql.MigrateTable,
+		host:         options.Host,
+		rootPassword: options.RootPassword,
+		name:         options.Name,
+		username:     options.Username,
+		password:     options.Password,
+		migrateTable: options.MigrateTable,
 		connection:   pool,
 	}
 }
@@ -63,7 +62,7 @@ func NewMysqlDatabase(msql *cnf.ConfigMysql) IMysqlDatabase {
 func (dtb *mysqlDatabase) Connect() *gorm.DB {
 	once.Do(func() {
 		// connnecting to database
-		link := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "mh22T7uDi61XC14Udw7b", dtb.host, dtb.port, dtb.name)
+		link := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", dtb.rootPassword, dtb.host, dtb.name)
 		var erro error
 		conn, erro = gorm.Open(mysql.Open(link), &gorm.Config{
 			SkipDefaultTransaction: true,
