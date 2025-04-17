@@ -1,0 +1,45 @@
+{
+	"coord": {
+		"lon": 103.99,
+		"lat": 1.36
+	},
+	"weather": [
+		{
+			"id": 803,
+			"main": "Clouds",
+			"description": "broken clouds",
+			"icon": "04n"
+		}
+	],
+	"base": "stations",
+	"main": {
+		"temp": 27.5,
+		"feels_like": 31.52,
+		"temp_min": 26.96,
+		"temp_max": 28.43,
+		"pressure": 1010,
+		"humidity": 85,
+		"sea_level": 1010,
+		"grnd_level": 1009
+	},
+	"visibility": 10000,
+	"wind": {
+		"speed": 3.09,
+		"deg": 30
+	},
+	"clouds": {
+		"all": 75
+	},
+	"dt": 1744645292,
+	"sys": {
+		"type": 1,
+		"id": 9480,
+		"country": "SG",
+		"sunrise": 1744585193,
+		"sunset": 1744628905
+	},
+	"timezone": 28800,
+	"id": 1880216,
+	"name": "Tampines Estate",
+	"cod": 200
+}

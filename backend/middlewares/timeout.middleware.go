@@ -12,8 +12,8 @@ import (
 
 func TimeoutMiddleware(timeLmt time.Duration) gin.HandlerFunc {
 	return func(ctxt *gin.Context) {
-		newCtxt, cacl := context.WithTimeout(ctxt.Request.Context(), timeLmt)
-		defer cacl()
+		newCtxt, cancel := context.WithTimeout(ctxt.Request.Context(), timeLmt)
+		defer cancel()
 		ctxt.Request = ctxt.Request.WithContext(newCtxt)
 		done := make(chan struct{}, 1)
 		go func() {

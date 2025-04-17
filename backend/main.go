@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -22,15 +21,22 @@ func main() {
 	if erro != nil {
 		log.Fatalln("Failed occured while setting config", erro)
 	}
-	fmt.Println(conf)
 	// connect database
 	mysqlDtbs := databases.NewMysqlDatabase(&conf.Mysql)
 	mysqlDtbs.Connect()
 	if erro := mysqlDtbs.Ping(context.Background()); erro != nil {
 		log.Fatalln("Failed occured while connecting mysql database", erro)
 	}
+	// connect cache
+	redisCache := databases.NewRedisCache(&conf.Redis)
+	redisCache.Connect()
+	if erro = redisCache.Ping(context.Background()); erro != nil {
+		log.Fatalln("Failed occured while connecting redis cache", erro)
+	}
+	// run scheduler
+	scheduler := server.GetScheduler()
 	// create route
-	ngin := handlers.Initialize(mysqlDtbs)
+	ngin := handlers.Initialize(conf.OpenWeather.ApiKey, mysqlDtbs, redisCache, scheduler)
 	// set graceful shutdown
 	serv := server.NewServer(conf.Port, ngin)
 	sigChan := make(chan os.Signal, 1)
@@ -48,11 +54,10 @@ func main() {
 	// set timeout for closing all connection
 	ctxt, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() {
-		// close all connection
-		// cron.Stop()
-		// cach.Close()
-		// dtbs.Close()
-		// log.Finish()
+		// close all connections
+		mysqlDtbs.Close()
+		redisCache.Close()
+		scheduler.Stop()
 		cancel()
 	}()
 	// shutdown the server

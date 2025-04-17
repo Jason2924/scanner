@@ -9,19 +9,24 @@ import (
 	"github.com/Jason2924/scanner/backend/middlewares"
 	"github.com/Jason2924/scanner/backend/models"
 	"github.com/Jason2924/scanner/backend/repositories"
+	"github.com/Jason2924/scanner/backend/server"
 	"github.com/Jason2924/scanner/backend/services"
 	"github.com/gin-gonic/gin"
 )
 
-func Initialize(mysqlDtbs databases.IMysqlDatabase) *gin.Engine {
+func Initialize(openWeatherKey string, mysqlDtbs databases.IMysqlDatabase, redisCache databases.IRedisCache, scheduler server.IScheduler) *gin.Engine {
 	// gin.SetMode(convertMode(conf.Mode))
 	ngin := gin.New()
 
 	reportRepo := repositories.NewReportRepository(mysqlDtbs)
 
-	reportSrvc := services.NewReportService(reportRepo)
+	openWeatherSrvc := services.NewOpenWeatherService(openWeatherKey)
+	reportSrvc := services.NewReportService(openWeatherSrvc, redisCache, reportRepo)
 
 	reportCtrl := controllers.NewReportController(reportSrvc)
+
+	scheduler.AddOpenWeatherJob(reportSrvc)
+	scheduler.Start()
 
 	apiGrup := ngin.Group("api/v1")
 	apiGrup.Use(middlewares.TimeoutMiddleware(10 * time.Second))
@@ -54,5 +59,7 @@ func setReportRoutes(apiGrup *gin.RouterGroup, reportCtrl controllers.IReportCon
 	reportGrup := apiGrup.Group("reports")
 	{
 		reportGrup.GET("read-current", reportCtrl.ReadCurrent)
+		reportGrup.GET("read-many", reportCtrl.ReadMany)
+		reportGrup.POST("insert-current", reportCtrl.InsertCurrent)
 	}
 }

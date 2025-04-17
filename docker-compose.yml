@@ -9,11 +9,17 @@ services:
     image: backend
     container_name: backend
     ports:
-      - "8080:8080"
+      - "4000:4000"
     depends_on:
       - database
     env_file:
       - ./backend/.env.local
+
+  cache:
+    image: redis:7.4.2-alpine
+    container_name: cache
+    ports:
+      - "6379:6379"
 
   database:
     image: mysql:8.3.0
