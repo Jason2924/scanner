@@ -13,10 +13,10 @@ type OpenWeatherCurrentResp struct {
 	} `json:"weather"`
 	Base string
 	Main struct {
-		Temperature    float64 `json:"temp"`
+		Temperature    float32 `json:"temp"`
 		FeelsLike      float64 `json:"feels_like"`
-		TemperatureMin float64 `json:"temp_min"`
-		TemperatureMax float64 `json:"temp_max"`
+		TemperatureMin float32 `json:"temp_min"`
+		TemperatureMax float32 `json:"temp_max"`
 		Pressure       int     `json:"pressure"`
 		Humidity       int     `json:"humidity"`
 		SeaLevel       int     `json:"sea_level"`

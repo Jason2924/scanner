@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Jason2924/scanner/backend/entities"
@@ -12,9 +13,10 @@ type ReportReadResp struct {
 	Latitude    float64   `json:"latitude"`
 	Longitude   float64   `json:"longitude"`
 	Location    string    `json:"location"`
+	DateTime    time.Time `json:"dateTime"`
 	Timestamp   int64     `json:"timestamp"`
 	Timezone    int       `json:"timezone"`
-	Temperature float64   `json:"temperature"`
+	Temperature float32   `json:"temperature"`
 	Pressure    int       `json:"pressure"`
 	Humidity    int       `json:"humidity"`
 	CloudCover  int       `json:"cloudCover"`
@@ -22,10 +24,22 @@ type ReportReadResp struct {
 }
 
 func (mod *ReportReadResp) FromEntity(item *entities.ReportSchema) {
+	utcTime := time.Unix(item.Timestamp, 0).UTC()
+	zoneTime := item.Timestamp / 3600
+	zoneName := "UTC"
+	if zoneTime < 0 {
+		zoneName += fmt.Sprintf("%s%d", zoneName, zoneTime)
+	} else {
+		zoneName += fmt.Sprintf("%s-%d", zoneName, zoneTime)
+	}
+	location := time.FixedZone(zoneName, item.Timezone)
+	localTime := utcTime.In(location)
+
 	mod.ID = item.ID
 	mod.Latitude = item.Latitude
 	mod.Longitude = item.Longitude
 	mod.Location = item.Location
+	mod.DateTime = localTime
 	mod.Timestamp = item.Timestamp
 	mod.Timezone = item.Timezone
 	mod.Temperature = item.Temperature
@@ -33,6 +47,7 @@ func (mod *ReportReadResp) FromEntity(item *entities.ReportSchema) {
 	mod.Humidity = item.Humidity
 	mod.CloudCover = item.CloudCover
 	mod.CreatedAt = item.CreatedAt
+
 }
 
 type ReportReadCurrentReqt struct {
@@ -55,8 +70,7 @@ type ReportReadManyReqt struct {
 }
 
 type ReportReadManyResp struct {
-	List  *[]ReportReadResp `json:"list"`
-	Total int64             `json:"total"`
+	List *[]ReportReadResp `json:"list"`
 }
 
 func (mod *ReportReadManyResp) FromEntities(items []entities.ReportSchema) {
@@ -67,6 +81,33 @@ func (mod *ReportReadManyResp) FromEntities(items []entities.ReportSchema) {
 		list = append(list, parsedItem)
 	}
 	mod.List = &list
+}
+
+type ReportCompareByIdsReqt struct {
+	Ids []string `form:"ids[]" binding:"required"`
+}
+
+type ReportCompareByIdsResp struct {
+	List *[]ReportReadResp `json:"list"`
+}
+
+func (mod *ReportCompareByIdsResp) FromEntities(items []entities.ReportSchema) {
+	list := make([]ReportReadResp, 0, len(items))
+	for _, item := range items {
+		parsedItem := ReportReadResp{}
+		parsedItem.FromEntity(&item)
+		list = append(list, parsedItem)
+	}
+	mod.List = &list
+}
+
+type ReportCountManyReqt struct {
+	Latitude  float64 `form:"latitude" binding:"required"`
+	Longitude float64 `form:"longitude" binding:"required"`
+}
+
+type ReportCountManyResp struct {
+	Total int64 `json:"total"`
 }
 
 type ReportInsertCurrentReqt struct {

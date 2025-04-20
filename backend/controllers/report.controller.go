@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -14,6 +13,8 @@ import (
 type IReportController interface {
 	ReadCurrent(ctxt *gin.Context)
 	ReadMany(ctxt *gin.Context)
+	CompareByIds(ctxt *gin.Context)
+	CountMany(ctxt *gin.Context)
 	InsertCurrent(ctxt *gin.Context)
 }
 
@@ -35,14 +36,14 @@ func (ctr *reportController) ReadCurrent(ctxt *gin.Context) {
 	)
 	if erro = ultilities.BindRequest(ctxt, ultilities.BindTypeQuery, reqt); erro != nil {
 		log.Println("Error:", erro.Error())
-		result := models.NewResponse("error occured while getting data", nil)
-		ctxt.AbortWithStatusJSON(http.StatusConflict, result)
+		result := models.NewResponse("error occured while getting current data", nil)
+		ctxt.AbortWithStatusJSON(http.StatusBadRequest, result)
 		return
 	}
 	resp, erro = ctr.iReportService.ReadCurrent(ctxt, reqt)
 	if erro != nil {
 		log.Println("Error:", erro.Error())
-		result := models.NewResponse("error occured while getting data", nil)
+		result := models.NewResponse("error occured while getting current data", nil)
 		ctxt.AbortWithStatusJSON(http.StatusConflict, result)
 		return
 	}
@@ -59,13 +60,56 @@ func (ctr *reportController) ReadMany(ctxt *gin.Context) {
 	if erro = ultilities.BindRequest(ctxt, ultilities.BindTypeQuery, reqt); erro != nil {
 		log.Println("Error:", erro.Error())
 		result := models.NewResponse("error occured while getting data", nil)
-		ctxt.AbortWithStatusJSON(http.StatusConflict, result)
+		ctxt.AbortWithStatusJSON(http.StatusBadRequest, result)
 		return
 	}
-	fmt.Println(reqt)
 	if resp, erro = ctr.iReportService.ReadMany(ctxt, reqt); erro != nil {
 		log.Println("Error:", erro.Error())
 		result := models.NewResponse("error occured while getting data", nil)
+		ctxt.AbortWithStatusJSON(http.StatusConflict, result)
+		return
+	}
+	result := models.NewResponse("success", resp)
+	ctxt.JSON(http.StatusOK, result)
+}
+
+func (ctr *reportController) CompareByIds(ctxt *gin.Context) {
+	var (
+		reqt = &models.ReportCompareByIdsReqt{}
+		resp = &models.ReportCompareByIdsResp{}
+		erro error
+	)
+	if erro = ultilities.BindRequest(ctxt, ultilities.BindTypeQuery, reqt); erro != nil {
+		log.Println("Error:", erro.Error())
+		result := models.NewResponse("error occured while getting comparison data", nil)
+		ctxt.AbortWithStatusJSON(http.StatusBadRequest, result)
+		return
+	}
+	if resp, erro = ctr.iReportService.CompareByIds(ctxt, reqt); erro != nil {
+		log.Println("Error:", erro.Error())
+		result := models.NewResponse("error occured while getting comparison data", nil)
+		ctxt.AbortWithStatusJSON(http.StatusConflict, result)
+		return
+	}
+	result := models.NewResponse("success", resp)
+	ctxt.JSON(http.StatusOK, result)
+}
+
+func (ctr *reportController) CountMany(ctxt *gin.Context) {
+	var (
+		reqt = &models.ReportCountManyReqt{}
+		resp = &models.ReportCountManyResp{}
+		erro error
+	)
+	if erro = ultilities.BindRequest(ctxt, ultilities.BindTypeQuery, reqt); erro != nil {
+		log.Println("Error:", erro.Error())
+		result := models.NewResponse("error occured while counting data", nil)
+		ctxt.AbortWithStatusJSON(http.StatusBadRequest, result)
+		return
+	}
+	if resp, erro = ctr.iReportService.CountMany(ctxt, reqt); erro != nil {
+		log.Println("Error:", erro.Error())
+		result := models.NewResponse("error occured while counting data", nil)
 		ctxt.AbortWithStatusJSON(http.StatusConflict, result)
 		return
 	}
@@ -81,7 +125,7 @@ func (ctr *reportController) InsertCurrent(ctxt *gin.Context) {
 	if erro = ultilities.BindRequest(ctxt, ultilities.BindTypeJson, reqt); erro != nil {
 		log.Println("Error:", erro.Error())
 		result := models.NewResponse("error occured while writing data", nil)
-		ctxt.AbortWithStatusJSON(http.StatusConflict, result)
+		ctxt.AbortWithStatusJSON(http.StatusBadRequest, result)
 		return
 	}
 	if erro = ctr.iReportService.InsertCurrent(ctxt, reqt); erro != nil {
