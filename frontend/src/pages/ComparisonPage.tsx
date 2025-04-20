@@ -7,6 +7,8 @@ import { ReportManyModel, ReportModel } from "../models/report.model";
 
 const ComparisonPage = () => {
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   const REPORT_LENGTH = 2
   const { report1, report2 } = useParams<{ report1: string; report2: string }>();
 
@@ -18,7 +20,7 @@ const ComparisonPage = () => {
       const fetchApi = async () => {
         try {
           await axios.get(
-            "http://localhost:4000/api/v1/reports/compare-ids",
+            `${API_URL}/reports/compare-ids`,
             {
               params: {ids: [report1, report2]}
             }

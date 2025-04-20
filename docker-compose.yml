@@ -12,6 +12,7 @@ services:
       - "4000:4000"
     depends_on:
       - database
+      - cache
     env_file:
       - ./backend/.env.local
 

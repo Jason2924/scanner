@@ -16,6 +16,7 @@ type IReportRepository interface {
 	CompareByIds(ctxt context.Context, reqt *models.ReportCompareByIdsReqt) ([]entities.ReportSchema, error)
 	CountMany(ctxt context.Context, reqt *models.ReportCountManyReqt) (int64, error)
 	InsertCurrent(ctxt context.Context, entity *entities.ReportSchema) error
+	InsertMany(ctxt context.Context, entity []entities.ReportSchema) error
 }
 
 type reportRepository struct {
@@ -83,6 +84,12 @@ func (rep *reportRepository) CountMany(ctxt context.Context, reqt *models.Report
 }
 
 func (rep *reportRepository) InsertCurrent(ctxt context.Context, entity *entities.ReportSchema) error {
+	conn := rep.iMysqlDatabase.Connect().WithContext(ctxt)
+	result := conn.Model(&entities.ReportSchema{}).Create(entity)
+	return result.Error
+}
+
+func (rep *reportRepository) InsertMany(ctxt context.Context, entity []entities.ReportSchema) error {
 	conn := rep.iMysqlDatabase.Connect().WithContext(ctxt)
 	result := conn.Model(&entities.ReportSchema{}).Create(entity)
 	return result.Error

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -16,8 +18,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Initialize(openWeatherKey string, mysqlDtbs databases.IMysqlDatabase, redisCache databases.IRedisCache, scheduler server.IScheduler) *gin.Engine {
-	gin.SetMode(convertMode(""))
+func Initialize(mode string, isMigrateTable bool, openWeatherKey string, mysqlDtbs databases.IMysqlDatabase, redisCache databases.IRedisCache, scheduler server.IScheduler) *gin.Engine {
+	gin.SetMode(convertMode(mode))
 	ngin := gin.New()
 	ngin.SetTrustedProxies(nil)
 	ngin.Use(cors.New(setCORS()))
@@ -26,6 +28,15 @@ func Initialize(openWeatherKey string, mysqlDtbs databases.IMysqlDatabase, redis
 
 	openWeatherSrvc := services.NewOpenWeatherService(openWeatherKey)
 	reportSrvc := services.NewReportService(openWeatherSrvc, redisCache, reportRepo)
+
+	if isMigrateTable {
+		ctxt, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		fakeDataSrvc := services.NewFakeDataService(reportRepo)
+		if erro := fakeDataSrvc.InsertReports(ctxt, 20); erro != nil {
+			log.Println("Error occured while inserting fake data to database")
+		}
+	}
 
 	reportCtrl := controllers.NewReportController(reportSrvc)
 

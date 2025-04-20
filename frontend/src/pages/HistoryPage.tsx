@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom"
 
 const HistoryPage = () => {
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   const REPORT_LATITUDE = 1.3586
   const REPORT_LONGITUDE = 103.9899
   const REPORT_LIMIT = 5
@@ -27,7 +29,7 @@ const HistoryPage = () => {
     const fetchApi = async () => {
       try {
         await axios.get(
-          "http://localhost:4000/api/v1/reports/read-many",
+          `${API_URL}/reports/read-many`,
           {
             params: {
               latitude: REPORT_LATITUDE,
@@ -59,7 +61,7 @@ const HistoryPage = () => {
     const fetchApi = async () => {
       try {
         await axios.get(
-          "http://localhost:4000/api/v1/reports/count-many",
+          `${API_URL}/reports/count-many`,
           {
             params: {
               latitude: REPORT_LATITUDE,
