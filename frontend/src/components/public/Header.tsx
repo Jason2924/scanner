@@ -1,20 +1,22 @@
+import { Box, Container, Flex } from "@radix-ui/themes"
 import { Link } from "react-router-dom"
 
 const Header = () => {
   return (
-    <header className="bg-gradient-to-r from-rose-400 to-cyan-100 py-6">
-      <div className="container mx-auto flex justify-between">
-        <div className="text-3xl text-white font-bold tracking-tight">
-          <Link to="/">Scanner</Link>
-        </div>
-        <div className="flex space-x-2">
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-          </ul>
-        </div>
-      </div>
+    <header className="py-3 shadow">
+      <Container size={"3"}>
+        <Flex justify={"between"}>
+          <Box className="flex-1/12 max-w-32">
+            <Link className="block" to="/">Scanner</Link>
+          </Box>
+          <Box className="flex-auto">
+            <Flex gap={"3"} align={"center"} justify={"end"}>
+              <Link className="px-2 block" to="/">Home</Link>
+              <Link className="px-2 block" to="/history">History</Link>
+            </Flex>
+          </Box>
+        </Flex>
+      </Container>
     </header>
   )
 }
