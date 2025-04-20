@@ -7,6 +7,8 @@ import HistoryReportItem from "../components/home/HistoryReportItem"
 
 const HomePage = () => {
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   const REPORT_LATITUDE = 1.3586
   const REPORT_LONGITUDE = 103.9899
   const REPORT_LIMIT = 5
@@ -19,7 +21,7 @@ const HomePage = () => {
     const fetchApi = async () => {
       try {
         const currentReportApi = axios.get(
-          "http://localhost:4000/api/v1/reports/read-current",
+          `${API_URL}/reports/read-current`,
           {
             params: {
               latitude: 1.3586,
@@ -28,7 +30,7 @@ const HomePage = () => {
           }
         ).then((result) => result.data.data as ReportModel)
         const historyReportApi = axios.get(
-          "http://localhost:4000/api/v1/reports/read-many",
+          `${API_URL}/reports/read-many`,
           {
             params: {
               latitude: REPORT_LATITUDE,

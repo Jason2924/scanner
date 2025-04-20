@@ -19,31 +19,31 @@ func main() {
 	// get config from env file
 	conf, erro := config.Load("./", ".env.local", "env")
 	if erro != nil {
-		log.Fatalln("Failed occured while setting config", erro)
+		log.Fatalln("Error occured while setting config", erro)
 	}
 	// connect database
 	mysqlDtbs := databases.NewMysqlDatabase(&conf.Mysql)
 	mysqlDtbs.Connect()
 	if erro := mysqlDtbs.Ping(context.Background()); erro != nil {
-		log.Fatalln("Failed occured while connecting mysql database", erro)
+		log.Fatalln("Error occured while connecting mysql database", erro)
 	}
 	// connect cache
 	redisCache := databases.NewRedisCache(&conf.Redis)
 	redisCache.Connect()
 	if erro = redisCache.Ping(context.Background()); erro != nil {
-		log.Fatalln("Failed occured while connecting redis cache", erro)
+		log.Fatalln("Error occured while connecting redis cache", erro)
 	}
 	// run scheduler
 	scheduler := server.GetScheduler()
 	// create route
-	ngin := handlers.Initialize(conf.OpenWeather.ApiKey, mysqlDtbs, redisCache, scheduler)
+	ngin := handlers.Initialize(conf.Mode, conf.Mysql.MigrateTable, conf.OpenWeather.ApiKey, mysqlDtbs, redisCache, scheduler)
 	// set graceful shutdown
 	serv := server.NewServer(conf.Port, ngin)
 	sigChan := make(chan os.Signal, 1)
 	// create the background and listen and serve
 	go func() {
 		if erro := serv.Start(); erro != nil && erro != http.ErrServerClosed {
-			log.Fatalln("Failed occured while starting server", erro)
+			log.Fatalln("Error occured while starting server", erro)
 		}
 	}()
 	// the signal channel to listen the Interrupt and Termination signals

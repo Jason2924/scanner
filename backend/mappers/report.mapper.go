@@ -1,6 +1,7 @@
 package mappers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Jason2924/scanner/backend/entities"
@@ -13,7 +14,7 @@ func MapOpenWeatherToReport(model *models.OpenWeatherCurrentResp, unit string) *
 		ID:          uuid.New(),
 		Latitude:    model.Coordinate.Latitude,
 		Longitude:   model.Coordinate.Longitude,
-		Location:    model.System.Country,
+		Location:    fmt.Sprintf("%s, %s", model.CityName, model.System.Country),
 		Unit:        unit,
 		Timestamp:   model.TimeOfData,
 		Timezone:    model.Timezone,
