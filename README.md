@@ -31,7 +31,14 @@ In `backend/.env.local`, set the required environment variables, including the M
 MYSQL_MIGRATE_TABLE=true
 ```
 
-Once .env.local is ready, generate fake weather data using the Go utility provided (or manually run the seed logic).
+Then create account from **Open Weather** and get the api key into `OPEN_WEATHER_API_KEY`
+👉 https://openweathermap.org/
+
+```env
+OPEN_WEATHER_API_KEY=
+```
+
+Once `.env.local` is ready, generate fake weather data using the Go utility provided.
 
 ### ✅ Step 5: Start Services
 
